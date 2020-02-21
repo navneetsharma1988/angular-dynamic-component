@@ -1,31 +1,31 @@
-import { TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { AdService } from './ad.services';
 import { AppComponent } from './app.component';
-
 describe('AppComponent', () => {
-  beforeEach(async(() => {
+  let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
+  beforeEach(() => {
+    const adServiceStub = () => ({ getAds: () => ({}) });
     TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
-      ],
-    }).compileComponents();
-  }));
-
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app).toBeTruthy();
+      schemas: [NO_ERRORS_SCHEMA],
+      declarations: [AppComponent],
+      providers: [{ provide: AdService, useFactory: adServiceStub }]
+    });
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
   });
-
-  it(`should have as title 'DynamicComponent'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('DynamicComponent');
+  it('can load instance', () => {
+    expect(component).toBeTruthy();
   });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('DynamicComponent app is running!');
+  describe('ngOnInit', () => {
+    it('makes expected calls', () => {
+      const adServiceStub: AdService = fixture.debugElement.injector.get(
+        AdService
+      );
+      spyOn(adServiceStub, 'getAds').and.callThrough();
+      component.ngOnInit();
+      expect(adServiceStub.getAds).toHaveBeenCalled();
+    });
   });
 });

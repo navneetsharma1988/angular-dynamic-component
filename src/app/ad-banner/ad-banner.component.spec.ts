@@ -1,77 +1,48 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed, async } from "@angular/core/testing";
 import { NO_ERRORS_SCHEMA, Component } from "@angular/core";
 import { ComponentFactoryResolver } from "@angular/core";
 import { AdBannerComponent } from "./ad-banner.component";
+import { AdDirective } from '../ad.directive';
+import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 
 @Component({
-  selector: "stub",
-  templateUrl: "<div>My Name is Admiral</div>"
+  selector: 'dynamic-component',
+  template: `Dynamic component`
 })
-export class stubComponent {}
+export class DynamicComponent  {}
 
 describe("AdBannerComponent", () => {
+
   let component: AdBannerComponent;
   let fixture: ComponentFixture<AdBannerComponent>;
-  beforeEach(() => {
-    const componentFactoryResolverStub = () => ({
-      resolveComponentFactory: component => ({})
+  let componentFactoryResolver: ComponentFactoryResolver ;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [AdBannerComponent, AdDirective, DynamicComponent]
+    }).overrideModule(BrowserDynamicTestingModule, {
+      set: {
+        entryComponents: [DynamicComponent]
+      }
     });
 
-    TestBed.configureTestingModule({
-      schemas: [NO_ERRORS_SCHEMA],
-      declarations: [AdBannerComponent, stubComponent],
-      providers: [
-        {
-          provide: ComponentFactoryResolver,
-          useFactory: componentFactoryResolverStub
-        }
-      ]
-    });
+    TestBed.compileComponents();
+  }));
+
+  beforeEach(() => {
     fixture = TestBed.createComponent(AdBannerComponent);
     component = fixture.componentInstance;
-  });
+    component.ads = [{component: DynamicComponent, data: {} }];
+    componentFactoryResolver =  fixture.debugElement.injector.get(ComponentFactoryResolver);
+    fixture.detectChanges();
+  })
 
   it("can load instance", () => {
+    console.log(fixture.debugElement.componentInstance.adHost)
     expect(component).toBeTruthy();
   });
 
-  describe("ngOnInit", () => {
-    it("makes expected calls", () => {
-      spyOn(component, "loadComponents").and.callFake(() => {});
-      spyOn(component, "getAds").and.callFake(() => {});
-      fixture.detectChanges();
-      expect(component.loadComponents).toHaveBeenCalled();
-      expect(component.getAds).toHaveBeenCalled();
-    });
-  });
-
-  describe("loadComponents", () => {
-    it("makes expected calls", () => {
-      component.currentAdIndex = 0;
-      component.ads = [{ component: stubComponent, data: {} }];
-      
-      const componentFactoryResolverStub: ComponentFactoryResolver = fixture.debugElement.injector.get(
-        ComponentFactoryResolver
-      );
-
-      spyOn(
-        componentFactoryResolverStub,
-        "resolveComponentFactory"
-      ).and.callThrough();
-
-      component.loadComponents();
-
-      expect(
-        componentFactoryResolverStub.resolveComponentFactory
-      ).toHaveBeenCalled();
-    });
-  });
-
-  describe("getAds", () => {
-    it("makes expected calls", () => {
-      spyOn(component, "loadComponents").and.callThrough();
-      component.getAds();
-      expect(component.loadComponents).toHaveBeenCalled();
-    });
-  });
+  // it('should have dynamic content loaded', () => {
+  //   expect(fixture.debugElement.componentInstance).toBe(1);
+  // })
 });

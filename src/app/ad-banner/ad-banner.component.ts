@@ -22,6 +22,7 @@ export class AdBannerComponent implements OnInit, OnDestroy {
   }
 
   loadComponents() {
+    console.log('in loadcomponent')
     this.currentAdIndex = (this.currentAdIndex + 1) % this.ads.length;
     const adItem = this.ads[this.currentAdIndex];
 
